@@ -1,0 +1,132 @@
+{
+	"name": "df_transform_cases_deaths",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_raw_cases_deaths",
+						"type": "DatasetReference"
+					},
+					"name": "CasesDeathsSource"
+				},
+				{
+					"linkedService": {
+						"referenceName": "ls_covid19prjdls",
+						"type": "LinkedServiceReference"
+					},
+					"name": "CountryLookup"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_processed_cases_deaths",
+						"type": "DatasetReference"
+					},
+					"name": "CasesDeathsSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FilterEuropeOnly"
+				},
+				{
+					"name": "PivotIndicatorValues"
+				},
+				{
+					"name": "CasesDeathsJOINCountryLookup"
+				},
+				{
+					"name": "SelectRequiredFieldsOnly"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          country as string,",
+				"          country_code as string,",
+				"          continent as string,",
+				"          population as integer,",
+				"          indicator as string,",
+				"          daily_count as integer,",
+				"          date as date,",
+				"          rate_14_day as double,",
+				"          source as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false) ~> CasesDeathsSource",
+				"source(output(",
+				"          country as string,",
+				"          country_code_2_digit as string,",
+				"          country_code_3_digit as string,",
+				"          continent as string,",
+				"          population as integer",
+				"     ),",
+				"     useSchema: false,",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'delimited',",
+				"     fileSystem: 'lookup',",
+				"     folderPath: 'dim_country',",
+				"     fileName: 'country_lookup.csv',",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: true) ~> CountryLookup",
+				"CasesDeathsSource filter(continent == \"Europe\" && not(isNull(country_code))) ~> FilterEuropeOnly",
+				"FilterEuropeOnly pivot(groupBy(country,",
+				"          country_code,",
+				"          continent,",
+				"          population,",
+				"          date,",
+				"          rate_14_day,",
+				"          source),",
+				"     pivotBy(indicator, ['confirmed cases', 'deaths']),",
+				"     count = sum(daily_count),",
+				"     columnNaming: '$V_$N',",
+				"     lateral: true) ~> PivotIndicatorValues",
+				"PivotIndicatorValues, CountryLookup join(PivotIndicatorValues@country == CountryLookup@country,",
+				"     joinType:'right',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> CasesDeathsJOINCountryLookup",
+				"CasesDeathsJOINCountryLookup select(mapColumn(",
+				"          country = PivotIndicatorValues@country,",
+				"          country_code_2_digit,",
+				"          country_code_3_digit,",
+				"          population = PivotIndicatorValues@population,",
+				"          reported_date = date,",
+				"          confirmed_cases_count = {confirmed cases_count},",
+				"          deaths_count,",
+				"          source",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectRequiredFieldsOnly",
+				"SelectRequiredFieldsOnly sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['cases_and_deaths.csv'],",
+				"     truncate: true,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          country,",
+				"          country_code_2_digit,",
+				"          country_code_3_digit,",
+				"          population,",
+				"          reported_date,",
+				"          confirmed_cases_count,",
+				"          deaths_count,",
+				"          source",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> CasesDeathsSink"
+			]
+		}
+	}
+}

@@ -1,0 +1,12 @@
+{
+	"name": "ls_covid19prjsa",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"serviceEndpoint": "https://covid19prjsa.blob.core.windows.net/",
+			"accountKind": "StorageV2"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
+}

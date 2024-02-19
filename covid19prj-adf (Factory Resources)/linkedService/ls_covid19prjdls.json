@@ -1,0 +1,11 @@
+{
+	"name": "ls_covid19prjdls",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://covid19prjdls.dfs.core.windows.net/"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
+}

@@ -1,0 +1,33 @@
+{
+	"name": "pl_transform_population_by_age_data",
+	"properties": {
+		"activities": [
+			{
+				"name": "transformPopulationData",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Covid_19_Reporting/transformation/transform_population_data"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_adb_covid_cluster",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "transform"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-01-22T12:39:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

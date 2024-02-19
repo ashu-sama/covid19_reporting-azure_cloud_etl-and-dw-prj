@@ -1,0 +1,20 @@
+{
+	"name": "ls_adb_covid_cluster",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-6959039079286234.14.azuredatabricks.net",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_covid19prj_kv",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "covid-reporting-ws"
+			},
+			"existingClusterId": "0122-050707-4z0ki4p7"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
+}

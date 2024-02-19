@@ -1,0 +1,18 @@
+{
+	"name": "ls_sql_covid19_db",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_covid19prj_kv",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "covid19db-connection-string"
+			}
+		}
+	}
+}
